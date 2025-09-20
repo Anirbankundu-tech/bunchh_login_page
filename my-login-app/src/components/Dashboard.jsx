@@ -16,9 +16,12 @@ const sampleClips = Array.from({ length: 9 }).map((_, i) => ({
 export default function Dashboard() {
   const [clips, setClips] = useState(sampleClips);
   const [selectedClips, setSelectedClips] = useState(new Set());
-  const [uploading, setUploading] = useState(false);
   const [videoLink, setVideoLink] = useState("");
-  const [thumbnail, setThumbnail] = useState(""); // thumbnail preview
+  const [thumbnail, setThumbnail] = useState("");
+  const [fileVideo, setFileVideo] = useState(null); // uploaded video file
+  const [filePreview, setFilePreview] = useState(null); // preview for uploaded video
+  const [numShorts, setNumShorts] = useState(5);
+
   const navigate = useNavigate();
   const user = auth.currentUser;
 
@@ -37,16 +40,13 @@ export default function Dashboard() {
     });
   };
 
-  const handleUploadClick = () => {
-    setUploading(true);
-    setTimeout(() => setUploading(false), 1400);
-  };
-
   const handleGenerateShorts = () => {
     if (videoLink) {
-      alert(`Generating shorts from link: ${videoLink}`);
+      alert(`Generating ${numShorts} shorts from link: ${videoLink}`);
+    } else if (fileVideo) {
+      alert(`Generating ${numShorts} shorts from uploaded file: ${fileVideo.name}`);
     } else {
-      alert("AI Generate triggered — send to backend / Firebase function");
+      alert("Please paste a video link or upload a video to generate shorts.");
     }
   };
 
@@ -63,6 +63,8 @@ export default function Dashboard() {
   const handleLinkChange = (e) => {
     const link = e.target.value;
     setVideoLink(link);
+    setFileVideo(null);
+    setFilePreview(null);
 
     const youtubeRegex = /(?:youtube\.com\/.*v=|youtu\.be\/)([a-zA-Z0-9_-]{11})/;
     const match = link.match(youtubeRegex);
@@ -75,9 +77,26 @@ export default function Dashboard() {
     }
   };
 
+  // Handle file upload
+  const handleFileUpload = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setFileVideo(file);
+      setVideoLink("");
+      setThumbnail("");
+      setFilePreview(URL.createObjectURL(file));
+    }
+  };
+
+  // Cancel uploaded file
+  const cancelUpload = () => {
+    setFileVideo(null);
+    setFilePreview(null);
+  };
+
   return (
     <div className="min-h-screen w-full bg-gradient-to-b from-[#07060b] via-[#0a0b14] to-[#020205] text-white overflow-hidden">
-      {/* cosmic background */}
+      {/* Background */}
       <div className="absolute inset-0 pointer-events-none -z-10">
         <div className="w-full h-full bg-[radial-gradient(ellipse_at_center,_rgba(79,70,229,0.14)_0%,_transparent_25%),radial-gradient(ellipse_at_right,_rgba(14,165,233,0.07)_0%,_transparent_25%)] animate-fadein" />
       </div>
@@ -94,17 +113,15 @@ export default function Dashboard() {
         </div>
 
         <div className="flex-1 max-w-2xl mx-6">
-          <div className="relative">
-            <input
-              className="w-full rounded-full bg-neutral-900/60 border border-gray-800 px-4 py-2 focus:ring-2 focus:ring-blue-500 outline-none"
-              placeholder="Search clips, uploads, projects..."
-            />
-          </div>
+          <input
+            className="w-full rounded-full bg-neutral-900/60 border border-gray-800 px-4 py-2 focus:ring-2 focus:ring-blue-500 outline-none"
+            placeholder="Search clips, uploads, projects..."
+          />
         </div>
 
         <div className="flex items-center gap-4">
           <button className="relative group p-2 rounded-full hover:bg-white/3">
-            <img src="/icons/bell.svg" alt="Notifications" className="w-6 h-6 text-yellow-400" />
+            <img src="/icons/bell.svg" alt="Notifications" className="w-6 h-6" />
             <span className="absolute -top-1 -right-1 w-3 h-3 rounded-full bg-red-500" />
           </button>
 
@@ -134,55 +151,62 @@ export default function Dashboard() {
         {/* Sidebar */}
         <aside className="w-56 sticky top-20 h-[calc(100vh-5rem)] self-start">
           <nav className="flex flex-col gap-2">
-            {["Dashboard", "Upload Video", "Generate Shorts", "Clip Library", "Exports"].map(
-              (label, idx) => (
-                <button
-                  key={label}
-                  className={`flex items-center gap-3 px-3 py-2 rounded-lg text-left hover:bg-white/5 transition ${
-                    idx === 0
-                      ? "bg-gradient-to-r from-[#2ee6a4]/10 border-l-4 border-l-[#2ee6a4]"
-                      : ""
-                  }`}
-                >
-                  <span className="w-6 text-center">{["🏠", "📤", "✂️", "🎞️", "⬇️"][idx]}</span>
-                  <span className="font-medium">{label}</span>
-                </button>
-              )
-            )}
+            {["Dashboard", "Generate Shorts", "Clip Library", "Exports"].map((label, idx) => (
+              <button
+                key={label}
+                className={`flex items-center gap-3 px-3 py-2 rounded-lg text-left hover:bg-white/5 transition ${
+                  idx === 0 ? "bg-gradient-to-r from-[#2ee6a4]/10 border-l-4 border-l-[#2ee6a4]" : ""
+                }`}
+              >
+                <span className="w-6 text-center">{["🏠", "✂️", "🎞️", "⬇️"][idx]}</span>
+                <span className="font-medium">{label}</span>
+              </button>
+            ))}
           </nav>
         </aside>
 
         {/* Main */}
         <main className="flex-1">
-          {/* Upload zone with link field */}
+          {/* Paste Link & Upload Input */}
           <motion.div
             initial={{ opacity: 0, y: 8 }}
             animate={{ opacity: 1, y: 0 }}
             className="rounded-2xl bg-neutral-920 border border-gray-800 p-6 mb-6"
           >
             <h2 className="text-2xl font-bold mb-2">Overview</h2>
-            <p className="text-gray-400 mb-4">
-              Upload your long-form videos or paste a link to generate shorts instantly.
-            </p>
+            <p className="text-gray-400 mb-4">Paste a video link or upload a video to generate shorts instantly.</p>
 
             <div className="rounded-xl border-2 border-dashed border-gray-800 p-8 flex flex-col items-center justify-center gap-4">
-              <div className="text-gray-300">Drag & drop a video here</div>
-              <button
-                onClick={handleUploadClick}
-                className="mt-2 px-6 py-3 rounded-lg bg-gradient-to-r from-blue-500 to-purple-600 shadow-lg hover:scale-[1.02] transition"
-              >
-                {uploading ? "Uploading..." : "Upload / Import Video"}
-              </button>
-
-              {/* Paste video link input + Create Clip button */}
-              <div className="w-full mt-6 flex gap-3">
+              <div className="w-full flex gap-3">
                 <input
                   type="url"
                   value={videoLink}
                   onChange={handleLinkChange}
-                  placeholder="Or paste a video link (YouTube, Vimeo...)"
+                  placeholder="Paste a video link (YouTube, Vimeo...)"
                   className="flex-1 px-4 py-2 rounded-lg bg-neutral-900 border border-gray-700 focus:border-green-400 outline-none text-sm"
+                  disabled={!!fileVideo}
                 />
+
+                <input type="file" accept="video/*" onChange={handleFileUpload} className="hidden" id="uploadVideo" />
+                <label
+                  htmlFor="uploadVideo"
+                  className="px-4 py-2 rounded-lg bg-blue-500 hover:bg-blue-400 text-sm font-medium cursor-pointer"
+                >
+                  📂 Upload Video
+                </label>
+
+                <select
+                  value={numShorts}
+                  onChange={(e) => setNumShorts(e.target.value)}
+                  className="px-3 py-2 rounded-lg bg-neutral-900 border border-gray-700 focus:border-green-400 outline-none text-sm"
+                >
+                  {[...Array(20)].map((_, i) => (
+                    <option key={i + 1} value={i + 1}>
+                      {i + 1} Clips
+                    </option>
+                  ))}
+                </select>
+
                 <button
                   onClick={handleGenerateShorts}
                   className="px-6 py-2 rounded-lg bg-green-500 text-black font-bold hover:bg-green-400 transition"
@@ -191,18 +215,27 @@ export default function Dashboard() {
                 </button>
               </div>
 
-              {/* Show YouTube thumbnail preview */}
+              {/* Thumbnail or File Preview */}
               {thumbnail && (
-                <motion.div
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  className="mt-4 w-full"
-                >
+                <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="mt-4 w-full">
                   <img
                     src={thumbnail}
                     alt="Video Thumbnail"
                     className="rounded-xl shadow-lg border border-gray-700 max-h-60 mx-auto"
                   />
+                </motion.div>
+              )}
+
+              {filePreview && (
+                <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="mt-4 w-full text-center">
+                  <video src={filePreview} controls className="rounded-xl shadow-lg border border-gray-700 max-h-60 mx-auto" />
+                  <p className="text-sm text-gray-400 mt-2">{fileVideo?.name}</p>
+                  <button
+                    onClick={cancelUpload}
+                    className="mt-2 px-4 py-1 rounded-md bg-red-600 hover:bg-red-700 text-sm"
+                  >
+                    ❌ Cancel Upload
+                  </button>
                 </motion.div>
               )}
             </div>
@@ -231,7 +264,7 @@ export default function Dashboard() {
           </section>
         </main>
 
-        {/* Right column */}
+        {/* Right Panel */}
         <aside className="w-96 sticky top-20 h-[calc(100vh-5rem)] overflow-auto">
           <div className="p-4 rounded-xl bg-neutral-920 border border-gray-800">
             <h4 className="font-semibold mb-2">Selected Clip Preview</h4>
@@ -242,7 +275,7 @@ export default function Dashboard() {
         </aside>
       </div>
 
-      {/* Floating Generate Shorts button */}
+      {/* Floating Generate Shorts */}
       <button
         onClick={handleGenerateShorts}
         className="fixed right-8 bottom-28 z-40 w-16 h-16 rounded-full bg-[#00ff84] shadow-[0_12px_40px_rgba(0,255,132,0.16)] flex items-center justify-center text-black text-2xl hover:scale-105 transition animate-pulse"
@@ -251,7 +284,7 @@ export default function Dashboard() {
         ✂️
       </button>
 
-      {/* Export footer */}
+      {/* Export Footer */}
       <motion.div
         initial={{ y: 120 }}
         animate={{ y: selectedClips.size ? 0 : 120 }}
