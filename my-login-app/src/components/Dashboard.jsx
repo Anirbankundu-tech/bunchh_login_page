@@ -18,8 +18,8 @@ export default function Dashboard() {
   const [selectedClips, setSelectedClips] = useState(new Set());
   const [videoLink, setVideoLink] = useState("");
   const [thumbnail, setThumbnail] = useState("");
-  const [fileVideo, setFileVideo] = useState(null); // uploaded video file
-  const [filePreview, setFilePreview] = useState(null); // preview for uploaded video
+  const [fileVideo, setFileVideo] = useState(null);
+  const [filePreview, setFilePreview] = useState(null);
   const [numShorts, setNumShorts] = useState(5);
 
   const navigate = useNavigate();
@@ -77,10 +77,19 @@ export default function Dashboard() {
     }
   };
 
-  // Handle file upload
+  // Handle file upload with size restriction
   const handleFileUpload = (e) => {
     const file = e.target.files[0];
     if (file) {
+      const maxSizeMB = 40; // set limit here
+      const maxSizeBytes = maxSizeMB * 1024 * 1024;
+
+      if (file.size > maxSizeBytes) {
+        alert(`File too large! Please upload a video smaller than ${maxSizeMB} MB.`);
+        e.target.value = "";
+        return;
+      }
+
       setFileVideo(file);
       setVideoLink("");
       setThumbnail("");
@@ -227,9 +236,19 @@ export default function Dashboard() {
               )}
 
               {filePreview && (
-                <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="mt-4 w-full text-center">
-                  <video src={filePreview} controls className="rounded-xl shadow-lg border border-gray-700 max-h-60 mx-auto" />
-                  <p className="text-sm text-gray-400 mt-2">{fileVideo?.name}</p>
+                <motion.div
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="mt-4 w-full text-center"
+                >
+                  <video
+                    src={filePreview}
+                    controls
+                    className="rounded-xl shadow-lg border border-gray-700 max-h-60 mx-auto"
+                  />
+                  <p className="text-sm text-gray-400 mt-2">
+                    {fileVideo?.name} · {(fileVideo?.size / (1024 * 1024)).toFixed(2)} MB
+                  </p>
                   <button
                     onClick={cancelUpload}
                     className="mt-2 px-4 py-1 rounded-md bg-red-600 hover:bg-red-700 text-sm"
@@ -274,15 +293,6 @@ export default function Dashboard() {
           </div>
         </aside>
       </div>
-
-      {/* Floating Generate Shorts */}
-      <button
-        onClick={handleGenerateShorts}
-        className="fixed right-8 bottom-28 z-40 w-16 h-16 rounded-full bg-[#00ff84] shadow-[0_12px_40px_rgba(0,255,132,0.16)] flex items-center justify-center text-black text-2xl hover:scale-105 transition animate-pulse"
-        title="Generate Shorts"
-      >
-        ✂️
-      </button>
 
       {/* Export Footer */}
       <motion.div
