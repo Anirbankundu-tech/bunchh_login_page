@@ -18,6 +18,7 @@ export default function ClipCard({ clip }) {
         <button
           className="absolute left-2 top-2 bg-black/60 backdrop-blur-sm p-1 rounded-full"
           aria-label="Play"
+          onClick={(e) => e.stopPropagation()}
         >
           ▶
         </button>
@@ -33,8 +34,26 @@ export default function ClipCard({ clip }) {
             <p className="text-xs text-gray-400">{clip.date}</p>
           </div>
           <div className="flex items-center gap-2">
-            <button className="text-xs px-2 py-1 rounded bg-neutral-800 hover:bg-neutral-700">Edit</button>
-            <button className="text-xs px-2 py-1 rounded bg-neutral-800 hover:bg-neutral-700">Share</button>
+            <button
+              className="text-xs px-2 py-1 rounded bg-neutral-800 hover:bg-neutral-700"
+              onClick={(e) => e.stopPropagation()}
+            >
+              Edit
+            </button>
+            <button
+              className="text-xs px-2 py-1 rounded bg-neutral-800 hover:bg-neutral-700"
+              onClick={(e) => e.stopPropagation()}
+            >
+              Share
+            </button>
+            <a
+              href={clip.downloadUrl || clip.thumbnail}
+              download={(clip.title || "clip").replace(/\s+/g, "_") + (clip.downloadUrl ? "" : ".jpg")}
+              className="text-xs px-2 py-1 rounded bg-green-600 hover:bg-green-500 text-black font-medium"
+              onClick={(e) => e.stopPropagation()}
+            >
+              Download
+            </a>
           </div>
         </div>
       </div>
