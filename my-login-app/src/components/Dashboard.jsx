@@ -21,33 +21,29 @@ export default function Dashboard() {
   const [fileVideo, setFileVideo] = useState(null);
   const [filePreview, setFilePreview] = useState(null);
   const [numShorts, setNumShorts] = useState(5);
+  const [activeSection, setActiveSection] = useState("Dashboard");
 
   const navigate = useNavigate();
   const user = auth.currentUser;
 
   useEffect(() => {
-    if (!user) {
-      navigate("/", { replace: true });
-    }
+    if (!user) navigate("/", { replace: true });
   }, [user, navigate]);
 
   const toggleSelect = (id) => {
     setSelectedClips((s) => {
       const copy = new Set(s);
-      if (copy.has(id)) copy.delete(id);
-      else copy.add(id);
+      copy.has(id) ? copy.delete(id) : copy.add(id);
       return copy;
     });
   };
 
   const handleGenerateShorts = () => {
-    if (videoLink) {
+    if (videoLink)
       alert(`Generating ${numShorts} shorts from link: ${videoLink}`);
-    } else if (fileVideo) {
+    else if (fileVideo)
       alert(`Generating ${numShorts} shorts from uploaded file: ${fileVideo.name}`);
-    } else {
-      alert("Please paste a video link or upload a video to generate shorts.");
-    }
+    else alert("Please paste a video link or upload a video first.");
   };
 
   const handleExport = (format) => {
@@ -59,7 +55,7 @@ export default function Dashboard() {
     navigate("/");
   };
 
-  // Detect YouTube thumbnail
+  // Handle YouTube thumbnail detection
   const handleLinkChange = (e) => {
     const link = e.target.value;
     setVideoLink(link);
@@ -77,19 +73,16 @@ export default function Dashboard() {
     }
   };
 
-  // Handle file upload with size restriction
+  // Handle file upload (max 40MB)
   const handleFileUpload = (e) => {
     const file = e.target.files[0];
     if (file) {
-      const maxSizeMB = 40; // set limit here
-      const maxSizeBytes = maxSizeMB * 1024 * 1024;
-
+      const maxSizeBytes = 40 * 1024 * 1024;
       if (file.size > maxSizeBytes) {
-        alert(`File too large! Please upload a video smaller than ${maxSizeMB} MB.`);
+        alert("File too large! Must be under 40 MB.");
         e.target.value = "";
         return;
       }
-
       setFileVideo(file);
       setVideoLink("");
       setThumbnail("");
@@ -97,24 +90,168 @@ export default function Dashboard() {
     }
   };
 
-  // Cancel uploaded file
   const cancelUpload = () => {
     setFileVideo(null);
     setFilePreview(null);
   };
 
+  const renderSection = () => {
+    switch (activeSection) {
+      case "Dashboard":
+        return (
+          <>
+            <motion.div
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="rounded-2xl bg-neutral-920 border border-gray-800 p-6 mb-6"
+            >
+              <h2 className="text-2xl font-bold mb-2">Overview</h2>
+              <p className="text-gray-400 mb-4">
+                Paste a video link or upload a video to generate shorts instantly.
+              </p>
+
+              <div className="rounded-xl border-2 border-dashed border-gray-800 p-8 flex flex-col items-center justify-center gap-4">
+                <div className="w-full flex gap-3">
+                  <input
+                    type="url"
+                    value={videoLink}
+                    onChange={handleLinkChange}
+                    placeholder="Paste a video link (YouTube, Vimeo...)"
+                    className="flex-1 px-4 py-2 rounded-lg bg-neutral-900 border border-gray-700 focus:border-green-400 outline-none text-sm"
+                    disabled={!!fileVideo}
+                  />
+
+                  <input
+                    type="file"
+                    accept="video/*"
+                    onChange={handleFileUpload}
+                    className="hidden"
+                    id="uploadVideo"
+                  />
+                  <label
+                    htmlFor="uploadVideo"
+                    className="px-4 py-2 rounded-lg bg-blue-500 hover:bg-blue-400 text-sm font-medium cursor-pointer"
+                  >
+                    📂 Upload Video
+                  </label>
+
+                  <select
+                    value={numShorts}
+                    onChange={(e) => setNumShorts(e.target.value)}
+                    className="px-3 py-2 rounded-lg bg-neutral-900 border border-gray-700 focus:border-green-400 outline-none text-sm"
+                  >
+                    {[...Array(20)].map((_, i) => (
+                      <option key={i + 1} value={i + 1}>
+                        {i + 1} Clips
+                      </option>
+                    ))}
+                  </select>
+
+                  <button
+                    onClick={handleGenerateShorts}
+                    className="px-6 py-2 rounded-lg bg-green-500 text-black font-bold hover:bg-green-400 transition"
+                  >
+                    Create Clip
+                  </button>
+                </div>
+
+                {thumbnail && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="mt-4 w-full"
+                  >
+                    <img
+                      src={thumbnail}
+                      alt="Video Thumbnail"
+                      className="rounded-xl shadow-lg border border-gray-700 max-h-60 mx-auto"
+                    />
+                  </motion.div>
+                )}
+
+                {filePreview && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="mt-4 w-full text-center"
+                  >
+                    <video
+                      src={filePreview}
+                      controls
+                      className="rounded-xl shadow-lg border border-gray-700 max-h-60 mx-auto"
+                    />
+                    <p className="text-sm text-gray-400 mt-2">
+                      {fileVideo?.name} ·{" "}
+                      {(fileVideo?.size / (1024 * 1024)).toFixed(2)} MB
+                    </p>
+                    <button
+                      onClick={cancelUpload}
+                      className="mt-2 px-4 py-1 rounded-md bg-red-600 hover:bg-red-700 text-sm"
+                    >
+                      ❌ Cancel Upload
+                    </button>
+                  </motion.div>
+                )}
+              </div>
+            </motion.div>
+          </>
+        );
+
+      case "Generate Shorts":
+        return (
+          <div className="text-gray-300">
+            <h2 className="text-2xl font-bold mb-4">Generate Shorts</h2>
+            <p>
+              Here you can fine-tune your clip generation settings and analyze
+              the output quality.
+            </p>
+          </div>
+        );
+
+      case "Clip Library":
+        return (
+          <section>
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-xl font-semibold">Clip Library</h3>
+              <div className="text-sm text-gray-400">{clips.length} clips</div>
+            </div>
+
+            <div className="grid grid-cols-3 gap-4">
+              {clips.map((c) => (
+                <div key={c.id} onClick={() => toggleSelect(c.id)} className="relative">
+                  <ClipCard clip={c} />
+                  <input
+                    type="checkbox"
+                    checked={selectedClips.has(c.id)}
+                    onChange={() => toggleSelect(c.id)}
+                    className="absolute left-3 top-3 w-4 h-4 accent-green-400"
+                  />
+                </div>
+              ))}
+            </div>
+          </section>
+        );
+
+      case "Exports":
+        return (
+          <div className="text-gray-300">
+            <h2 className="text-2xl font-bold mb-4">Exports</h2>
+            <p>View and download your exported clips here.</p>
+          </div>
+        );
+
+      default:
+        return null;
+    }
+  };
+
   return (
     <div className="min-h-screen w-full bg-gradient-to-b from-[#07060b] via-[#0a0b14] to-[#020205] text-white overflow-hidden">
-      {/* Background */}
-      <div className="absolute inset-0 pointer-events-none -z-10">
-        <div className="w-full h-full bg-[radial-gradient(ellipse_at_center,_rgba(79,70,229,0.14)_0%,_transparent_25%),radial-gradient(ellipse_at_right,_rgba(14,165,233,0.07)_0%,_transparent_25%)] animate-fadein" />
-      </div>
-
       {/* Header */}
       <header className="fixed top-0 left-0 right-0 h-16 flex items-center justify-between px-6 backdrop-blur-sm bg-black/30 border-b border-gray-800 z-30">
         <div className="flex items-center gap-4">
           <div className="flex items-center gap-2">
-            <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-purple-600 to-blue-400 flex items-center justify-center shadow-[0_6px_24px_rgba(99,102,241,0.12)]">
+            <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-purple-600 to-blue-400 flex items-center justify-center">
               <span className="font-extrabold text-lg text-white">B</span>
             </div>
             <span className="font-semibold text-lg">Bunchhh</span>
@@ -143,7 +280,7 @@ export default function Dashboard() {
               </div>
             )}
             <div className="text-sm text-gray-200">
-              <div className="font-medium">{user?.displayName || (user?.email ?? "User")}</div>
+              <div className="font-medium">{user?.displayName || user?.email || "User"}</div>
             </div>
             <button
               onClick={handleLogout}
@@ -163,8 +300,11 @@ export default function Dashboard() {
             {["Dashboard", "Generate Shorts", "Clip Library", "Exports"].map((label, idx) => (
               <button
                 key={label}
+                onClick={() => setActiveSection(label)}
                 className={`flex items-center gap-3 px-3 py-2 rounded-lg text-left hover:bg-white/5 transition ${
-                  idx === 0 ? "bg-gradient-to-r from-[#2ee6a4]/10 border-l-4 border-l-[#2ee6a4]" : ""
+                  activeSection === label
+                    ? "bg-gradient-to-r from-[#2ee6a4]/10 border-l-4 border-l-[#2ee6a4]"
+                    : ""
                 }`}
               >
                 <span className="w-6 text-center">{["🏠", "✂️", "🎞️", "⬇️"][idx]}</span>
@@ -174,114 +314,8 @@ export default function Dashboard() {
           </nav>
         </aside>
 
-        {/* Main */}
-        <main className="flex-1">
-          {/* Paste Link & Upload Input */}
-          <motion.div
-            initial={{ opacity: 0, y: 8 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="rounded-2xl bg-neutral-920 border border-gray-800 p-6 mb-6"
-          >
-            <h2 className="text-2xl font-bold mb-2">Overview</h2>
-            <p className="text-gray-400 mb-4">Paste a video link or upload a video to generate shorts instantly.</p>
-
-            <div className="rounded-xl border-2 border-dashed border-gray-800 p-8 flex flex-col items-center justify-center gap-4">
-              <div className="w-full flex gap-3">
-                <input
-                  type="url"
-                  value={videoLink}
-                  onChange={handleLinkChange}
-                  placeholder="Paste a video link (YouTube, Vimeo...)"
-                  className="flex-1 px-4 py-2 rounded-lg bg-neutral-900 border border-gray-700 focus:border-green-400 outline-none text-sm"
-                  disabled={!!fileVideo}
-                />
-
-                <input type="file" accept="video/*" onChange={handleFileUpload} className="hidden" id="uploadVideo" />
-                <label
-                  htmlFor="uploadVideo"
-                  className="px-4 py-2 rounded-lg bg-blue-500 hover:bg-blue-400 text-sm font-medium cursor-pointer"
-                >
-                  📂 Upload Video
-                </label>
-
-                <select
-                  value={numShorts}
-                  onChange={(e) => setNumShorts(e.target.value)}
-                  className="px-3 py-2 rounded-lg bg-neutral-900 border border-gray-700 focus:border-green-400 outline-none text-sm"
-                >
-                  {[...Array(20)].map((_, i) => (
-                    <option key={i + 1} value={i + 1}>
-                      {i + 1} Clips
-                    </option>
-                  ))}
-                </select>
-
-                <button
-                  onClick={handleGenerateShorts}
-                  className="px-6 py-2 rounded-lg bg-green-500 text-black font-bold hover:bg-green-400 transition"
-                >
-                  Create Clip
-                </button>
-              </div>
-
-              {/* Thumbnail or File Preview */}
-              {thumbnail && (
-                <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="mt-4 w-full">
-                  <img
-                    src={thumbnail}
-                    alt="Video Thumbnail"
-                    className="rounded-xl shadow-lg border border-gray-700 max-h-60 mx-auto"
-                  />
-                </motion.div>
-              )}
-
-              {filePreview && (
-                <motion.div
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  className="mt-4 w-full text-center"
-                >
-                  <video
-                    src={filePreview}
-                    controls
-                    className="rounded-xl shadow-lg border border-gray-700 max-h-60 mx-auto"
-                  />
-                  <p className="text-sm text-gray-400 mt-2">
-                    {fileVideo?.name} · {(fileVideo?.size / (1024 * 1024)).toFixed(2)} MB
-                  </p>
-                  <button
-                    onClick={cancelUpload}
-                    className="mt-2 px-4 py-1 rounded-md bg-red-600 hover:bg-red-700 text-sm"
-                  >
-                    ❌ Cancel Upload
-                  </button>
-                </motion.div>
-              )}
-            </div>
-          </motion.div>
-
-          {/* Clip Library */}
-          <section>
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-xl font-semibold">Clip Library</h3>
-              <div className="text-sm text-gray-400">{clips.length} clips</div>
-            </div>
-
-            <div className="grid grid-cols-3 gap-4">
-              {clips.map((c) => (
-                <div key={c.id} onClick={() => toggleSelect(c.id)} className="relative">
-                  <ClipCard clip={c} />
-                  <input
-                    type="checkbox"
-                    checked={selectedClips.has(c.id)}
-                    onChange={() => toggleSelect(c.id)}
-                    className="absolute left-3 top-3 w-4 h-4 accent-green-400"
-                  />
-                </div>
-              ))}
-            </div>
-          </section>
-        </main>
+        {/* Main Section */}
+        <main className="flex-1">{renderSection()}</main>
 
         {/* Right Panel */}
         <aside className="w-96 sticky top-20 h-[calc(100vh-5rem)] overflow-auto">
@@ -309,9 +343,7 @@ export default function Dashboard() {
                 whileHover={{ scale: 1.08, rotate: -1 }}
                 whileTap={{ scale: 0.95 }}
                 onClick={() => handleExport("mp4")}
-                className="px-3 py-2 rounded bg-gradient-to-r from-purple-500 to-blue-400 
-                           shadow-md hover:shadow-lg hover:from-purple-400 hover:to-blue-300 
-                           transition duration-200"
+                className="px-3 py-2 rounded bg-gradient-to-r from-purple-500 to-blue-400 shadow-md hover:shadow-lg transition"
               >
                 Export MP4
               </motion.button>
@@ -319,9 +351,7 @@ export default function Dashboard() {
                 whileHover={{ scale: 1.08, rotate: 1 }}
                 whileTap={{ scale: 0.95 }}
                 onClick={() => handleExport("gif")}
-                className="px-3 py-2 rounded bg-gradient-to-r from-green-400 to-emerald-400 
-                           shadow-md hover:shadow-lg hover:from-green-300 hover:to-emerald-300 
-                           transition duration-200"
+                className="px-3 py-2 rounded bg-gradient-to-r from-green-400 to-emerald-400 shadow-md hover:shadow-lg transition"
               >
                 Export GIF
               </motion.button>
