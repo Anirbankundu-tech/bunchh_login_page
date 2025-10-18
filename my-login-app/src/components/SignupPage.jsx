@@ -25,18 +25,14 @@ export default function SignupPage() {
     setMessage("");
 
     try {
-      // ✅ Backend API call
       const res = await axios.post("http://localhost:5000/api/signup", form);
-
       if (res.status === 200 || res.status === 201) {
         setMessage("✅ Account created successfully!");
-        console.log("Server response:", res.data);
         setTimeout(() => navigate("/login"), 1500);
       } else {
         throw new Error("Unexpected server response");
       }
     } catch (err) {
-      console.error("Signup error:", err);
       const errorMsg =
         err.response?.data?.message || err.message || "Signup failed!";
       setMessage("❌ " + errorMsg);
@@ -46,14 +42,18 @@ export default function SignupPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-indigo-900 via-purple-800 to-indigo-700">
-      <div className="w-full max-w-md backdrop-blur-md bg-white/10 border border-white/20 rounded-2xl shadow-2xl p-8 text-white">
-        <h2 className="text-3xl font-bold text-center mb-6">Create Account</h2>
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#120136] via-[#6b00b6] to-[#ff00ff] animate-gradient bg-[length:400%_400%]">
+      <div className="w-full max-w-md bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl shadow-[0_0_30px_rgba(255,255,255,0.2)] p-8 text-white transform transition duration-500 hover:scale-[1.02] hover:shadow-[0_0_40px_rgba(255,255,255,0.3)]">
+        <h2 className="text-4xl font-extrabold text-center mb-6 tracking-wide text-transparent bg-clip-text bg-gradient-to-r from-pink-400 via-purple-300 to-blue-400 animate-pulse">
+          Join <span className="text-white">Bunchhh</span>
+        </h2>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           {/* Name */}
           <div>
-            <label className="block text-sm font-medium mb-1 text-gray-200">Full Name</label>
+            <label className="block text-sm font-medium mb-1 text-gray-200">
+              Full Name
+            </label>
             <input
               type="text"
               name="name"
@@ -61,13 +61,15 @@ export default function SignupPage() {
               onChange={handleChange}
               required
               placeholder="Enter your name"
-              className="w-full bg-white/20 border border-white/30 text-white rounded-md px-3 py-2 focus:ring-2 focus:ring-purple-400 outline-none placeholder-gray-300"
+              className="w-full bg-white/10 border border-white/30 text-white rounded-md px-3 py-2 focus:ring-2 focus:ring-pink-400 focus:border-pink-400 outline-none placeholder-gray-300 transition-all duration-300"
             />
           </div>
 
           {/* Username */}
           <div>
-            <label className="block text-sm font-medium mb-1 text-gray-200">Username</label>
+            <label className="block text-sm font-medium mb-1 text-gray-200">
+              Username
+            </label>
             <input
               type="text"
               name="username"
@@ -75,7 +77,7 @@ export default function SignupPage() {
               onChange={handleChange}
               required
               placeholder="Enter username"
-              className="w-full bg-white/20 border border-white/30 text-white rounded-md px-3 py-2 focus:ring-2 focus:ring-purple-400 outline-none placeholder-gray-300"
+              className="w-full bg-white/10 border border-white/30 text-white rounded-md px-3 py-2 focus:ring-2 focus:ring-purple-400 focus:border-purple-400 outline-none placeholder-gray-300 transition-all duration-300"
             />
             <p className="text-xs text-gray-300 mt-1">
               Use only letters, numbers, and underscores.
@@ -84,7 +86,9 @@ export default function SignupPage() {
 
           {/* Email */}
           <div>
-            <label className="block text-sm font-medium mb-1 text-gray-200">Email</label>
+            <label className="block text-sm font-medium mb-1 text-gray-200">
+              Email
+            </label>
             <input
               type="email"
               name="email"
@@ -92,13 +96,15 @@ export default function SignupPage() {
               onChange={handleChange}
               required
               placeholder="Enter email"
-              className="w-full bg-white/20 border border-white/30 text-white rounded-md px-3 py-2 focus:ring-2 focus:ring-purple-400 outline-none placeholder-gray-300"
+              className="w-full bg-white/10 border border-white/30 text-white rounded-md px-3 py-2 focus:ring-2 focus:ring-blue-400 focus:border-blue-400 outline-none placeholder-gray-300 transition-all duration-300"
             />
           </div>
 
           {/* Password */}
           <div>
-            <label className="block text-sm font-medium mb-1 text-gray-200">Password</label>
+            <label className="block text-sm font-medium mb-1 text-gray-200">
+              Password
+            </label>
             <input
               type="password"
               name="password"
@@ -106,10 +112,11 @@ export default function SignupPage() {
               onChange={handleChange}
               required
               placeholder="Enter password"
-              className="w-full bg-white/20 border border-white/30 text-white rounded-md px-3 py-2 focus:ring-2 focus:ring-purple-400 outline-none placeholder-gray-300"
+              className="w-full bg-white/10 border border-white/30 text-white rounded-md px-3 py-2 focus:ring-2 focus:ring-pink-400 focus:border-pink-400 outline-none placeholder-gray-300 transition-all duration-300"
             />
             <p className="text-xs text-gray-300 mt-1">
-              Must be at least 8 characters long and include a mix of letters, numbers, and symbols.
+              Must be at least 8 characters long and include a mix of letters,
+              numbers, and symbols.
             </p>
           </div>
 
@@ -128,7 +135,7 @@ export default function SignupPage() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-purple-600 hover:bg-purple-500 text-white py-2 rounded-md font-semibold transition-all duration-300 shadow-md hover:shadow-lg disabled:opacity-50"
+            className="w-full bg-gradient-to-r from-pink-600 via-purple-600 to-blue-600 hover:from-pink-500 hover:via-purple-500 hover:to-blue-500 text-white py-2 rounded-md font-semibold transition-all duration-300 shadow-lg hover:shadow-[0_0_20px_rgba(255,255,255,0.5)] disabled:opacity-50"
           >
             {loading ? "Creating Account..." : "Sign Up"}
           </button>
@@ -137,7 +144,10 @@ export default function SignupPage() {
         {/* Login Redirect */}
         <p className="text-center text-sm text-gray-300 mt-4">
           Already have an account?{" "}
-          <Link to="/login" className="text-purple-300 hover:text-white underline">
+          <Link
+            to="/login"
+            className="text-pink-300 hover:text-white underline transition-colors duration-200"
+          >
             Log in here
           </Link>
         </p>

@@ -3,6 +3,7 @@ import LandingPage from "./components/LandingPage";
 import SignupPage from "./components/SignupPage";
 import LoginPage from "./components/LoginPage";
 import Dashboard from "./components/Dashboard";
+import SubscriptionPage from "./components/SubscriptionPage";
 import ProtectedRoute from "./components/Predictedroute";
 
 
@@ -14,6 +15,7 @@ function App() {
         <Route path="/" element={<LandingPage />} />
         <Route path="/signup" element={<SignupPage />} />
         <Route path="/login" element={<LoginPage />} />
+        <Route path="/subscription" element={<SubscriptionPage />} />
 
         {/* Protected Dashboard */}
         <Route
