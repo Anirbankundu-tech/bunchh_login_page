@@ -73,18 +73,21 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#120136] via-[#6b00b6] to-[#ff00ff] animate-gradient bg-[length:400%_400%] text-white px-4">
+    <div className="min-h-screen flex items-center justify-center bg-white font-sans px-4">
       <motion.div
         initial={{ opacity: 0, y: 40 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.8, ease: "easeOut" }}
-        className="w-full max-w-md p-8 bg-white/10 backdrop-blur-md rounded-2xl shadow-[0_0_30px_rgba(255,255,255,0.2)] border border-white/20 text-center transform transition duration-500 hover:scale-[1.02] hover:shadow-[0_0_40px_rgba(255,255,255,0.3)]"
+        className="w-full max-w-md p-8 bg-white border border-gray-200 rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300 text-center"
       >
-        <h1 className="text-5xl font-extrabold mb-3 tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-pink-400 via-purple-300 to-blue-400 animate-pulse">
-          Bunchhh
+        {/* ===== Logo Header ===== */}
+        <h1 className="text-5xl font-extrabold mb-3 tracking-tight">
+          <span className="bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 bg-clip-text text-transparent drop-shadow-md">
+            Bunchhh
+          </span>
         </h1>
-        <p className="text-gray-200 text-sm mb-8">
-          Log in to create, edit, and explore stunning AI-powered talking videos.
+        <p className="text-gray-500 text-sm mb-8">
+          Log in to create, edit, and explore stunning AI-powered videos.
         </p>
 
         {/* Email Input */}
@@ -94,23 +97,23 @@ export default function LoginPage() {
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           placeholder="Enter your email"
-          className="w-full p-3 rounded-md bg-white/10 border border-white/30 text-white text-sm mb-5 focus:ring-2 focus:ring-pink-400 focus:border-pink-400 placeholder-gray-300 outline-none transition-all duration-300"
+          className="w-full p-3 rounded-lg bg-gray-50 border border-gray-300 text-gray-900 text-sm mb-5 focus:ring-2 focus:ring-blue-400 focus:border-blue-400 outline-none transition-all duration-200"
         />
 
         {/* Password Input */}
-        <div className="relative mb-3">
+        <div className="relative mb-4">
           <motion.input
             whileFocus={{ scale: 1.02 }}
             type={showPassword ? "text" : "password"}
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             placeholder="Enter your password"
-            className="w-full p-3 rounded-md bg-white/10 border border-white/30 text-white text-sm focus:ring-2 focus:ring-purple-400 focus:border-purple-400 placeholder-gray-300 outline-none transition-all duration-300 pr-12"
+            className="w-full p-3 rounded-lg bg-gray-50 border border-gray-300 text-gray-900 text-sm focus:ring-2 focus:ring-purple-400 focus:border-purple-400 outline-none transition-all duration-200 pr-12"
           />
           <button
             type="button"
             onClick={() => setShowPassword(!showPassword)}
-            className="absolute inset-y-0 right-3 flex items-center text-gray-300 hover:text-white"
+            className="absolute inset-y-0 right-3 flex items-center text-gray-400 hover:text-gray-600"
           >
             {showPassword ? (
               <svg
@@ -161,26 +164,26 @@ export default function LoginPage() {
         {/* Forgot Password */}
         <p
           onClick={handleForgotPassword}
-          className="text-sm text-pink-300 mb-6 cursor-pointer hover:underline"
+          className="text-sm text-blue-600 hover:text-purple-600 mb-6 cursor-pointer hover:underline transition"
         >
           Forgot Password?
         </p>
 
         {/* Terms Agreement */}
-        <label className="flex items-start gap-2 text-left text-xs text-gray-300 mb-6">
+        <label className="flex items-start gap-2 text-left text-xs text-gray-600 mb-6">
           <input
             type="checkbox"
             checked={agreed}
             onChange={(e) => setAgreed(e.target.checked)}
-            className="mt-1 accent-pink-500"
+            className="mt-1 accent-purple-500"
           />
           <span>
             I agree to the{" "}
-            <a href="#" className="text-pink-400 hover:underline">
+            <a href="#" className="text-blue-500 hover:underline">
               Terms of Service
             </a>{" "}
-            and acknowledge{" "}
-            <a href="#" className="text-pink-400 hover:underline">
+            and{" "}
+            <a href="#" className="text-purple-500 hover:underline">
               Privacy Policy
             </a>
           </span>
@@ -192,10 +195,10 @@ export default function LoginPage() {
           whileTap={isFormValid ? { scale: 0.95 } : {}}
           disabled={!isFormValid || loading}
           onClick={handleContinue}
-          className={`w-full py-3 rounded-md font-semibold transition mb-8 ${
+          className={`w-full py-3 rounded-xl font-semibold text-white text-lg transition mb-8 ${
             isFormValid
-              ? "bg-gradient-to-r from-pink-600 via-purple-600 to-blue-600 hover:from-pink-500 hover:via-purple-500 hover:to-blue-500 shadow-lg hover:shadow-[0_0_20px_rgba(255,255,255,0.5)]"
-              : "bg-white/10 text-gray-400 cursor-not-allowed"
+              ? "bg-gradient-to-r from-blue-500 via-purple-600 to-pink-500 hover:from-blue-400 hover:via-purple-500 hover:to-pink-400 shadow-lg hover:shadow-[0_0_20px_rgba(99,102,241,0.4)]"
+              : "bg-gray-200 text-gray-400 cursor-not-allowed"
           }`}
         >
           {loading ? "Processing..." : "Continue"}
@@ -203,9 +206,9 @@ export default function LoginPage() {
 
         {/* Divider */}
         <div className="flex items-center gap-4 mb-6">
-          <div className="flex-1 h-px bg-white/20" />
-          <span className="text-gray-300 text-xs">or</span>
-          <div className="flex-1 h-px bg-white/20" />
+          <div className="flex-1 h-px bg-gray-200" />
+          <span className="text-gray-400 text-xs">or</span>
+          <div className="flex-1 h-px bg-gray-200" />
         </div>
 
         {/* Social Login Buttons */}
@@ -214,30 +217,36 @@ export default function LoginPage() {
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
             onClick={() => handleSocialLogin(googleProvider)}
-            className="w-full flex items-center justify-center gap-3 p-3 rounded-md bg-white/10 border border-white/20 hover:bg-white/20 transition"
+            className="w-full flex items-center justify-center gap-3 p-3 rounded-lg bg-gray-50 border border-gray-300 hover:bg-gray-100 transition"
           >
             <img src="/icons/Google.svg" alt="Google" className="w-5 h-5" />
-            <span className="text-sm font-medium">Continue with Google</span>
+            <span className="text-sm font-medium text-gray-800">
+              Continue with Google
+            </span>
           </motion.button>
 
           <motion.button
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
             onClick={() => handleSocialLogin(microsoftProvider)}
-            className="w-full flex items-center justify-center gap-3 p-3 rounded-md bg-white/10 border border-white/20 hover:bg-white/20 transition"
+            className="w-full flex items-center justify-center gap-3 p-3 rounded-lg bg-gray-50 border border-gray-300 hover:bg-gray-100 transition"
           >
             <img src="/icons/Microsoft.svg" alt="Microsoft" className="w-5 h-5" />
-            <span className="text-sm font-medium">Continue with Microsoft</span>
+            <span className="text-sm font-medium text-gray-800">
+              Continue with Microsoft
+            </span>
           </motion.button>
 
           <motion.button
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
             onClick={() => handleSocialLogin(appleProvider)}
-            className="w-full flex items-center justify-center gap-3 p-3 rounded-md bg-white/10 border border-white/20 hover:bg-white/20 transition"
+            className="w-full flex items-center justify-center gap-3 p-3 rounded-lg bg-gray-50 border border-gray-300 hover:bg-gray-100 transition"
           >
             <img src="/icons/Apple.svg" alt="Apple" className="w-5 h-5" />
-            <span className="text-sm font-medium">Continue with Apple</span>
+            <span className="text-sm font-medium text-gray-800">
+              Continue with Apple
+            </span>
           </motion.button>
         </div>
       </motion.div>
